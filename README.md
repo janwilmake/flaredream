@@ -73,3 +73,9 @@ Just upload! Check https://flaredream.com/dropbox
 Generate static assets and/or a cloudflare worker with wrangler configuration, and click "deploy"
 
 https://flaredream.com
+
+# Future plan
+
+My personal goal is creating an agent that creates, deploys, and iterates on a given specification (not source code!)
+
+![](agent-architecture.drawio.png)

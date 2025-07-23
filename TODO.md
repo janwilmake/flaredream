@@ -5,7 +5,7 @@
 
 # Test dependencies via direct import without extension
 
-see https://letmeprompt.com/rules-httpsuithu-u8dywy0
+See https://letmeprompt.com/rules-httpsuithu-u8dywy0
 
 It seems even in the cloudflare dashboard, if I add a file without extension (.js) it won't find it and I get the error 'Uncaught Error: No such module "json5".'. The same happens when running `wrangler deploy --no-bundle`. This causes it to be impossible to use node_module imports because this is not a part of the runtime.
 
@@ -36,12 +36,3 @@ Also, I can imagine using https://www.npmjs.com/package/ts-to-jsdoc (although ts
 # MCP
 
 The deployment API also functions as MCP and should be first made possible from letmeprompt.com
-
-# Landing
-
-Let people choose and learn what they like: CLI, API, Dropbox, MCP <-- 4 cards that all just work from there would be great.
-
-Features:
-
-- Cloudflare and Wrangler Compatible
-- Sensible Defaults
