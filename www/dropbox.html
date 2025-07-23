@@ -1,0 +1,463 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flaredream Upload - Deploy to Cloudflare Workers</title>
+</head>
+
+<body
+    style="font-family: 'Courier New', monospace; background: #0a0a0a; color: #00ff00; min-height: 100vh; padding: 20px; margin: 0;">
+    <main
+        style="max-width: 800px; margin: 0 auto; background: #111; border-radius: 8px; padding: 20px; box-shadow: 0 4px 20px rgba(0, 255, 0, 0.1); border: 1px solid #333;">
+
+        <pre
+            style="color: #ff6600; font-size: 12px; line-height: 1; margin-bottom: 30px; white-space: pre; overflow-x: auto;">
+███████╗██╗      █████╗ ██████╗ ███████╗
+██╔════╝██║     ██╔══██╗██╔══██╗██╔════╝
+█████╗  ██║     ███████║██████╔╝█████╗  
+██╔══╝  ██║     ██╔══██║██╔══██╗██╔══╝  
+██║     ███████╗██║  ██║██║  ██║███████╗
+╚═╝     ╚══════╝╚═╝  ╚═╝╚═╝  ╚═╝╚══════╝
+
+██████╗ ██████╗ ███████╗ █████╗ ███╗   ███╗
+██╔══██╗██╔══██╗██╔════╝██╔══██╗████╗ ████║
+██║  ██║██████╔╝█████╗  ███████║██╔████╔██║
+██║  ██║██╔══██╗██╔══╝  ██╔══██║██║╚██╔╝██║
+██████╔╝██║  ██║███████╗██║  ██║██║ ╚═╝ ██║
+╚═════╝ ╚═╝  ╚═╝╚══════╝╚═╝  ╚═╝╚═╝     ╚═╝
+        </pre>
+
+        <!-- Login Required Section -->
+        <div id="loginRequired" style="display: none;">
+            <aside
+                style="background: #1a1a2e; border: 1px solid #16213e; padding: 20px; margin-bottom: 30px; border-radius: 4px; color: #00bfff; text-align: center;">
+                <h2 style="margin-top: 0; color: #ff6600;">🔐 Authentication Required</h2>
+                <p style="margin-bottom: 20px;">You need to authenticate with Cloudflare to deploy your project.</p>
+                <button id="loginBtn"
+                    style="background: #00bfff; color: #000; border: none; padding: 15px 30px; font-family: 'Courier New', monospace; font-weight: bold; cursor: pointer; border-radius: 4px; font-size: 16px; transition: all 0.3s ease;">
+                    🚀 Login with Cloudflare
+                </button>
+            </aside>
+        </div>
+
+        <!-- Main Form (hidden until authenticated) -->
+        <div id="mainContent" style="display: none;">
+            <aside
+                style="background: #1a4a1a; border: 1px solid #2d5a2d; padding: 15px; margin-bottom: 30px; border-radius: 4px; color: #90EE90; position: relative;">
+                <strong>✅ Authenticated:</strong> <span id="userInfo"></span>
+                <button id="logoutBtn"
+                    style="position: absolute; top: 10px; right: 10px; background: #ff4400; color: #fff; border: none; padding: 8px 12px; font-family: 'Courier New', monospace; cursor: pointer; border-radius: 4px; font-size: 14px; font-weight: bold;">
+                    Logout
+                </button>
+            </aside>
+
+            <form id="deployForm">
+                <fieldset style="border: none; padding: 0; margin: 0;">
+                    <!-- Domain input -->
+                    <div style="margin-bottom: 20px;">
+                        <label for="domain"
+                            style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold;">🌐 Domain
+                            pattern (optional):</label>
+                        <input type="text" id="domain" name="domain" placeholder="my-app.example.com or *.mydomain.com"
+                            style="width: 100%; padding: 12px; background: #1a1a1a; border: 1px solid #333; color: #00ff00; border-radius: 4px; font-family: 'Courier New', monospace; box-sizing: border-box;">
+                        <small style="font-size: 12px; color: #888; margin-top: 5px; display: block;">Enter your desired
+                            domain or subdomain pattern</small>
+                    </div>
+
+                    <!-- File Drop Area -->
+                    <div id="fileDropArea" style="margin-bottom: 20px;">
+                        <label style="display: block; margin-bottom: 8px; color: #00ff00; font-weight: bold;">📁 Drop
+                            your project folder here:</label>
+                        <div id="dropZone"
+                            style="width: 100%; height: 200px; border: 2px dashed #333; border-radius: 8px; background: #1a1a1a; display: flex; flex-direction: column; align-items: center; justify-content: center; cursor: pointer; transition: all 0.3s ease; position: relative; overflow: hidden;">
+
+                            <div id="dropContent" style="text-align: center; pointer-events: none;">
+                                <div style="font-size: 48px; margin-bottom: 10px; color: #00ff00;">📁</div>
+                                <div style="font-size: 18px; font-weight: bold; color: #00ff00; margin-bottom: 5px;">
+                                    Drop folder here or click to browse</div>
+                                <div style="font-size: 14px; color: #888;">Select the folder containing your static
+                                    assets</div>
+                            </div>
+
+                            <input type="file" id="files" name="files" webkitdirectory="" multiple required
+                                style="position: absolute; top: 0; left: 0; width: 100%; height: 100%; opacity: 0; cursor: pointer;">
+                        </div>
+                    </div>
+
+                    <!-- Loading Animation (initially hidden) -->
+                    <div id="loadingArea" style="display: none; text-align: center; padding: 40px;">
+                        <div id="loadingSpinner"
+                            style="display: inline-block; width: 60px; height: 60px; border: 4px solid #333; border-top: 4px solid #00ff00; border-radius: 50%; animation: spin 1s linear infinite; margin-bottom: 20px;">
+                        </div>
+                        <div style="font-size: 18px; color: #00ff00; font-weight: bold;">🚀 Deploying to Cloudflare
+                            Workers...</div>
+                        <div style="font-size: 14px; color: #888; margin-top: 10px;">This may take a few moments</div>
+                    </div>
+                </fieldset>
+            </form>
+        </div>
+
+        <footer
+            style="margin-top: 30px; text-align: center; padding: 15px; background: #2a2a2a; border-radius: 4px; border: 1px solid #444;">
+            <p>Prefer the command line? <a href="https://github.com/janwilmake/flaredream-cli" target="_blank"
+                    style="color: #ff6600; text-decoration: none; font-weight: bold; font-size: 18px;">Use CLI</a></p>
+        </footer>
+    </main>
+
+    <style>
+        @keyframes spin {
+            0% {
+                transform: rotate(0deg);
+            }
+
+            100% {
+                transform: rotate(360deg);
+            }
+        }
+
+        #dropZone:hover {
+            border-color: #00ff00 !important;
+            background: #0a2a0a !important;
+        }
+
+        #dropZone.dragover {
+            border-color: #00ff00 !important;
+            background: #0a2a0a !important;
+            transform: scale(1.02);
+        }
+    </style>
+
+    <script>
+        // OAuth configuration
+        const OAUTH_CONFIG = {
+            authUrl: 'https://cloudflare.simplerauth.com/authorize',
+            tokenUrl: 'https://cloudflare.simplerauth.com/token',
+            clientId: 'dropbox.flaredream.com',
+            redirectUri: 'https://dropbox.flaredream.com',
+            scope: 'user:email'
+        };
+
+        // Generate random state for OAuth security
+        function generateState() {
+            return Math.random().toString(36).substring(2, 15) + Math.random().toString(36).substring(2, 15);
+        }
+
+        // Get stored OAuth credentials from localStorage
+        function getStoredCredentials() {
+            try {
+                const stored = localStorage.getItem('cloudflare_oauth_credentials');
+                return stored ? JSON.parse(stored) : null;
+            } catch (e) {
+                console.error('Error parsing stored credentials:', e);
+                return null;
+            }
+        }
+
+        // Store OAuth credentials in localStorage
+        function storeCredentials(credentials) {
+            localStorage.setItem('cloudflare_oauth_credentials', JSON.stringify(credentials));
+        }
+
+        // Clear stored credentials
+        function clearCredentials() {
+            localStorage.removeItem('cloudflare_oauth_credentials');
+            localStorage.removeItem('oauth_state');
+        }
+
+        // Check if user is authenticated
+        function checkAuthentication() {
+            const credentials = getStoredCredentials();
+
+            if (credentials && credentials.cloudflare_account_id && credentials.cloudflare_api_key) {
+                // User is authenticated, show main content
+                document.getElementById('loginRequired').style.display = 'none';
+                document.getElementById('mainContent').style.display = 'block';
+
+                // Display user info
+                const userInfo = `Account: ${credentials.cloudflare_account_id.substring(0, 8)}...`;
+                document.getElementById('userInfo').textContent = userInfo;
+
+                return true;
+            } else {
+                // User is not authenticated, show login
+                document.getElementById('loginRequired').style.display = 'block';
+                document.getElementById('mainContent').style.display = 'none';
+                return false;
+            }
+        }
+
+        // Start OAuth flow
+        function startOAuthFlow() {
+            const state = generateState();
+            localStorage.setItem('oauth_state', state);
+
+            const authUrl = new URL(OAUTH_CONFIG.authUrl);
+            authUrl.searchParams.set('client_id', OAUTH_CONFIG.clientId);
+            authUrl.searchParams.set('redirect_uri', OAUTH_CONFIG.redirectUri);
+            authUrl.searchParams.set('response_type', 'code');
+            authUrl.searchParams.set('state', state);
+            authUrl.searchParams.set('scope', OAUTH_CONFIG.scope);
+            authUrl.searchParams.set('message', 'We need access to deploy your site to Cloudflare Workers');
+
+            window.location.href = authUrl.toString();
+        }
+
+        // Handle OAuth callback
+        async function handleOAuthCallback() {
+            const urlParams = new URLSearchParams(window.location.search);
+            const code = urlParams.get('code');
+            const state = urlParams.get('state');
+            const storedState = localStorage.getItem('oauth_state');
+
+            if (!code) {
+                // Not a callback, check authentication normally
+                return checkAuthentication();
+            }
+
+            if (state !== storedState) {
+                alert('Security error: Invalid state parameter');
+                clearCredentials();
+                return false;
+            }
+
+            try {
+                // Exchange code for token
+                const response = await fetch(OAUTH_CONFIG.tokenUrl, {
+                    method: 'POST',
+                    headers: {
+                        'Content-Type': 'application/x-www-form-urlencoded',
+                    },
+                    body: new URLSearchParams({
+                        grant_type: 'authorization_code',
+                        code: code,
+                        client_id: OAUTH_CONFIG.clientId,
+                        redirect_uri: OAUTH_CONFIG.redirectUri
+                    })
+                });
+
+                if (!response.ok) {
+                    throw new Error(`Token exchange failed: ${response.status}`);
+                }
+
+                const tokenData = await response.json();
+
+                // Store credentials
+                storeCredentials(tokenData);
+
+                // Clean up URL and localStorage
+                localStorage.removeItem('oauth_state');
+                window.history.replaceState({}, document.title, window.location.pathname);
+
+                // Check authentication to show UI
+                return checkAuthentication();
+
+            } catch (error) {
+                console.error('OAuth error:', error);
+                alert(`Authentication failed: ${error.message}`);
+                clearCredentials();
+                return false;
+            }
+        }
+
+        // Logout function
+        function logout() {
+            clearCredentials();
+            checkAuthentication();
+        }
+
+        // Show loading animation and hide file area
+        function showLoading() {
+            document.getElementById('fileDropArea').style.display = 'none';
+            document.getElementById('loadingArea').style.display = 'block';
+        }
+
+        // Hide loading animation and show file area
+        function hideLoading() {
+            document.getElementById('fileDropArea').style.display = 'block';
+            document.getElementById('loadingArea').style.display = 'none';
+        }
+
+        // Deploy files function
+        async function deployFiles(files) {
+            const domain = document.getElementById('domain').value;
+            const credentials = getStoredCredentials();
+
+            if (!credentials || !credentials.cloudflare_account_id || !credentials.cloudflare_api_key) {
+                alert('Authentication required. Please login first.');
+                checkAuthentication();
+                return;
+            }
+
+            showLoading();
+
+            try {
+                // Create FormData and append files with their relative paths
+                const formData = new FormData();
+
+                for (let i = 0; i < files.length; i++) {
+                    const file = files[i];
+                    // Use webkitRelativePath if available, otherwise use file name
+                    const path = file.webkitRelativePath || file.name;
+                    formData.append('files', file, path);
+                }
+
+                // Create basic auth header
+                const basicAuth = btoa(`${credentials.cloudflare_account_id}:${credentials.cloudflare_api_key}`);
+
+                const response = await fetch(`https://deploy.flaredream.com/deploy${domain.trim() ? `?pattern=${domain}` : ''}`, {
+                    method: 'POST',
+                    headers: {
+                        'Authorization': `Basic ${basicAuth}`
+                    },
+                    body: formData
+                });
+
+                if (!response.ok) {
+                    if (response.status === 401) {
+                        alert('Authentication failed. Please login again.');
+                        clearCredentials();
+                        checkAuthentication();
+                        return;
+                    }
+
+                    const errorText = await response.text();
+                    alert(`Deployment failed (Status: ${response.status})\n\n${errorText}`);
+                } else {
+                    const result = await response.text();
+                    alert(`Deployment successful!\n\n${result}`);
+                }
+            } catch (error) {
+                alert(`Network error occurred:\n\n${error.message}`);
+            } finally {
+                hideLoading();
+            }
+        }
+
+        // Initialize the app
+        document.addEventListener('DOMContentLoaded', function () {
+            // Handle OAuth callback or check existing authentication
+            handleOAuthCallback();
+
+            // Login button event
+            document.getElementById('loginBtn').addEventListener('click', startOAuthFlow);
+
+            // Logout button event
+            document.getElementById('logoutBtn').addEventListener('click', logout);
+
+            // File input change event - auto deploy
+            document.getElementById('files').addEventListener('change', function (e) {
+                const files = e.target.files;
+                if (files.length > 0) {
+                    console.log(`Selected ${files.length} files for deployment`);
+                    deployFiles(files);
+                }
+            });
+
+            // Drag and drop functionality
+            const dropZone = document.getElementById('dropZone');
+            const fileInput = document.getElementById('files');
+
+            // Prevent default drag behaviors
+            ['dragenter', 'dragover', 'dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, preventDefaults, false);
+                document.body.addEventListener(eventName, preventDefaults, false);
+            });
+
+            function preventDefaults(e) {
+                e.preventDefault();
+                e.stopPropagation();
+            }
+
+            // Highlight drop area when item is dragged over it
+            ['dragenter', 'dragover'].forEach(eventName => {
+                dropZone.addEventListener(eventName, highlight, false);
+            });
+
+            ['dragleave', 'drop'].forEach(eventName => {
+                dropZone.addEventListener(eventName, unhighlight, false);
+            });
+
+            function highlight(e) {
+                dropZone.classList.add('dragover');
+            }
+
+            function unhighlight(e) {
+                dropZone.classList.remove('dragover');
+            }
+
+            // Handle dropped files
+            dropZone.addEventListener('drop', handleDrop, false);
+
+            function handleDrop(e) {
+                const dt = e.dataTransfer;
+                const items = dt.items;
+
+                if (items) {
+                    // Handle dropped items (can include folders)
+                    const files = [];
+                    const promises = [];
+
+                    for (let i = 0; i < items.length; i++) {
+                        const item = items[i];
+                        if (item.kind === 'file') {
+                            const entry = item.webkitGetAsEntry();
+                            if (entry) {
+                                promises.push(traverseFileTree(entry, ''));
+                            }
+                        }
+                    }
+
+                    Promise.all(promises).then(results => {
+                        const allFiles = results.flat();
+                        if (allFiles.length > 0) {
+                            console.log(`Dropped ${allFiles.length} files for deployment`);
+                            deployFiles(allFiles);
+                        }
+                    });
+                } else {
+                    // Fallback for older browsers
+                    const files = dt.files;
+                    if (files.length > 0) {
+                        deployFiles(files);
+                    }
+                }
+            }
+
+            // Function to traverse file tree for folder drops
+            function traverseFileTree(item, path) {
+                return new Promise((resolve) => {
+                    if (item.isFile) {
+                        item.file(function (file) {
+                            // Add webkitRelativePath property to mimic folder selection
+                            Object.defineProperty(file, 'webkitRelativePath', {
+                                value: path + file.name,
+                                writable: false
+                            });
+                            resolve([file]);
+                        });
+                    } else if (item.isDirectory) {
+                        const dirReader = item.createReader();
+                        dirReader.readEntries(function (entries) {
+                            const promises = [];
+                            for (let i = 0; i < entries.length; i++) {
+                                promises.push(traverseFileTree(entries[i], path + item.name + '/'));
+                            }
+                            Promise.all(promises).then(results => {
+                                resolve(results.flat());
+                            });
+                        });
+                    }
+                });
+            }
+
+            // Click to browse functionality
+            dropZone.addEventListener('click', function () {
+                fileInput.click();
+            });
+        });
+    </script>
+</body>
+
+</html>

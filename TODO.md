@@ -1,6 +1,6 @@
 # Make the tailproxy work!!!
 
-- Why doesn't this work yet? Is it permissions?
+- ❌ Why doesn't this work yet? Is it permissions?
 - What else can I make to make this more user friendly? I wanna be able to manually test in this way in the browser, and see logs somehow. In a header is great, but what if a script can be injected into each html output that has a sw.js that observes all requests and adds tail logs? This could potentially be very insightful.
 
 # Test dependencies via direct import without extension
@@ -39,7 +39,7 @@ The deployment API also functions as MCP and should be first made possible from 
 
 # Landing
 
-Let people choose and learn what they like: CLI, API, Dropbox, MCP. <-- 4 cards that all just work from there would be great.
+Let people choose and learn what they like: CLI, API, Dropbox, MCP <-- 4 cards that all just work from there would be great.
 
 Features:
 

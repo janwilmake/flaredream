@@ -1,0 +1,981 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Flaredream - Dream it. Prompt it. Ship it.</title>
+    <meta name="description" content="Dream it. Prompt it. Ship it. Build and manage apps faster." />
+    <meta name="robots" content="index, follow" />
+
+    <!-- Facebook Meta Tags -->
+    <meta property="og:url" content="https://flaredream.com" />
+    <meta property="og:type" content="website" />
+    <meta property="og:title" content="Flaredream - Dream it. Prompt it. Ship it." />
+    <meta property="og:description" content="Dream it. Prompt it. Ship it. Build and manage apps faster." />
+    <meta property="og:image" content="https://quickog.com/screenshot/flaredream.com" />
+    <meta property="og:image:alt" content="Dream it. Prompt it. Ship it. Build and manage apps faster." />
+    <meta property="og:image:width" content="1200" />
+    <meta property="og:image:height" content="630" />
+
+    <!-- Twitter Meta Tags -->
+    <meta name="twitter:card" content="summary_large_image" />
+    <meta property="twitter:domain" content="flaredream.com" />
+    <meta property="twitter:url" content="https://flaredream.com" />
+    <meta name="twitter:title" content="Flaredream - Dream it. Prompt it. Ship it." />
+    <meta name="twitter:description" content="Dream it. Prompt it. Ship it. Build and manage apps faster." />
+    <meta name="twitter:image" content="https://quickog.com/screenshot/flaredream.com" />
+
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: linear-gradient(135deg, #0a0a0a 0%, #1a1a1a 50%, #2a1810 100%);
+            min-height: 100vh;
+            color: #ffffff;
+            padding-top: 60px;
+            /* Space for fixed header */
+        }
+
+        /* Header */
+        .header {
+            position: fixed;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 60px;
+            background: rgba(0, 0, 0, 0.9);
+            backdrop-filter: blur(20px);
+            border-bottom: 1px solid rgba(255, 107, 53, 0.2);
+            z-index: 1000;
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 0 2rem;
+        }
+
+        .header-logo {
+            font-size: 1.2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            text-decoration: none;
+        }
+
+        .header-nav {
+            display: flex;
+            align-items: center;
+            gap: 2rem;
+        }
+
+        .nav-link {
+            color: #ffffff;
+            text-decoration: none;
+            font-weight: 500;
+            transition: all 0.3s ease;
+            padding: 0.5rem 1rem;
+            border-radius: 6px;
+        }
+
+        .nav-link:hover {
+            color: #ff6b35;
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .nav-cta {
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            color: #ffffff !important;
+            padding: 0.75rem 1.5rem;
+            border-radius: 8px;
+            font-weight: 600;
+            transition: all 0.3s ease;
+        }
+
+        .nav-cta:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 4px 12px rgba(255, 107, 53, 0.4);
+            background: linear-gradient(135deg, #f7931e, #ff6b35);
+        }
+
+        /* Animated background particles */
+        .particles {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 1;
+        }
+
+        .particle {
+            position: absolute;
+            width: 2px;
+            height: 2px;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            border-radius: 50%;
+            animation: float 6s ease-in-out infinite;
+        }
+
+        @keyframes float {
+
+            0%,
+            100% {
+                transform: translateY(0px) rotate(0deg);
+                opacity: 0.7;
+            }
+
+            50% {
+                transform: translateY(-20px) rotate(180deg);
+                opacity: 1;
+            }
+        }
+
+        /* Main container */
+        .hero-section {
+            position: relative;
+            z-index: 2;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            justify-content: center;
+            min-height: 100vh;
+            padding: 2rem;
+        }
+
+        .content-section {
+            position: relative;
+            z-index: 2;
+            width: 100%;
+            max-width: 1200px;
+            margin: 0 auto;
+            padding: 4rem 2rem;
+        }
+
+        /* Logo/Brand */
+        .brand {
+            margin-bottom: 3rem;
+            text-align: center;
+        }
+
+        .brand h1 {
+            font-size: 2rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ff6b35, #f7931e, #ffaa44);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .brand p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        /* Main card */
+        .main-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 24px;
+            padding: 3rem 2.5rem;
+            max-width: 800px;
+            width: 100%;
+            box-shadow:
+                0 8px 32px rgba(0, 0, 0, 0.3),
+                0 0 0 1px rgba(255, 255, 255, 0.1) inset;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .main-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            right: 0;
+            height: 1px;
+            background: linear-gradient(90deg, transparent, rgba(255, 107, 53, 0.8), transparent);
+        }
+
+        /* Headline */
+        .headline {
+            text-align: center;
+            margin-bottom: 2.5rem;
+        }
+
+        .headline h2 {
+            font-size: 3rem;
+            font-weight: 800;
+            line-height: 1.1;
+            margin-bottom: 1rem;
+        }
+
+        .headline .line {
+            display: block;
+            background: linear-gradient(135deg, #ffffff, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            animation: glow 3s ease-in-out infinite alternate;
+        }
+
+        .headline .line:nth-child(2) {
+            animation-delay: 0.5s;
+        }
+
+        .headline .line:nth-child(3) {
+            animation-delay: 1s;
+        }
+
+        @keyframes glow {
+            from {
+                filter: brightness(1);
+            }
+
+            to {
+                filter: brightness(1.2);
+            }
+        }
+
+        /* Input section */
+        .input-section {
+            margin-bottom: 2rem;
+        }
+
+        .input-label {
+            display: block;
+            margin-bottom: 0.75rem;
+            font-weight: 600;
+            color: #ff6b35;
+            font-size: 0.9rem;
+            text-transform: uppercase;
+            letter-spacing: 0.5px;
+        }
+
+        .prompt-textarea {
+            width: 100%;
+            min-height: 120px;
+            padding: 1rem 1.25rem;
+            background: rgba(0, 0, 0, 0.3);
+            border: 1px solid rgba(255, 107, 53, 0.3);
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-family: inherit;
+            resize: vertical;
+            transition: all 0.3s ease;
+            backdrop-filter: blur(10px);
+        }
+
+        .prompt-textarea:focus {
+            outline: none;
+            border-color: #ff6b35;
+            box-shadow: 0 0 0 3px rgba(255, 107, 53, 0.1);
+            background: rgba(0, 0, 0, 0.5);
+        }
+
+        .prompt-textarea::placeholder {
+            color: #666;
+        }
+
+        /* Examples */
+        .examples {
+            margin-bottom: 2rem;
+        }
+
+        .examples h3 {
+            font-size: 1.2rem;
+            margin-bottom: 1rem;
+            color: #ff6b35;
+            text-align: center;
+        }
+
+        .examples-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(140px, 1fr));
+            gap: 0.75rem;
+            margin-bottom: 1.5rem;
+        }
+
+        .example-btn {
+            padding: 0.75rem 1rem;
+            background: rgba(255, 255, 255, 0.05);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 8px;
+            color: #ffffff;
+            font-size: 0.9rem;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            text-align: center;
+        }
+
+        .example-btn:hover {
+            background: rgba(255, 107, 53, 0.1);
+            border-color: rgba(255, 107, 53, 0.4);
+            transform: translateY(-2px);
+        }
+
+        /* Submit button */
+        .submit-btn {
+            width: 100%;
+            padding: 1.25rem 2rem;
+            background: linear-gradient(135deg, #ff6b35, #f7931e);
+            border: none;
+            border-radius: 12px;
+            color: #ffffff;
+            font-size: 1.1rem;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.3s ease;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .submit-btn::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: -100%;
+            width: 100%;
+            height: 100%;
+            background: linear-gradient(90deg, transparent, rgba(255, 255, 255, 0.2), transparent);
+            transition: left 0.5s ease;
+        }
+
+        .submit-btn:hover::before {
+            left: 100%;
+        }
+
+        .submit-btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 8px 25px rgba(255, 107, 53, 0.4);
+        }
+
+        .submit-btn:active {
+            transform: translateY(0);
+        }
+
+        /* Section titles */
+        .section-title {
+            text-align: center;
+            margin-bottom: 3rem;
+        }
+
+        .section-title h2 {
+            font-size: 2.5rem;
+            font-weight: 700;
+            background: linear-gradient(135deg, #ffffff, #ff6b35);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+            background-clip: text;
+            margin-bottom: 0.5rem;
+        }
+
+        .section-title p {
+            color: #888;
+            font-size: 1.1rem;
+        }
+
+        /* Social proof */
+        .tweets-grid {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(300px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .tweet {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 16px;
+            padding: 2rem;
+            position: relative;
+        }
+
+        .tweet-header {
+            display: flex;
+            align-items: center;
+            margin-bottom: 1rem;
+        }
+
+        .tweet-avatar {
+            width: 40px;
+            height: 40px;
+            border-radius: 50%;
+            background: linear-gradient(45deg, #ff6b35, #f7931e);
+            margin-right: 1rem;
+        }
+
+        .tweet-author {
+            font-weight: 600;
+            color: #ffffff;
+        }
+
+        .tweet-handle {
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        .tweet-content {
+            line-height: 1.6;
+            color: #ccc;
+        }
+
+        /* Examples showcase */
+        .examples-showcase {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(280px, 1fr));
+            gap: 2rem;
+            margin-bottom: 2rem;
+        }
+
+        .example-card {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 16px;
+            padding: 1.5rem;
+            position: relative;
+            transition: all 0.3s ease;
+        }
+
+        .example-card:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 20px 40px rgba(255, 107, 53, 0.2);
+        }
+
+        .example-card-header {
+            margin-bottom: 1rem;
+        }
+
+        .example-card-title {
+            font-weight: 600;
+            color: #ff6b35;
+            margin-bottom: 0.5rem;
+        }
+
+        .example-card-description {
+            color: #ccc;
+            font-size: 0.9rem;
+            line-height: 1.5;
+        }
+
+        .example-card-preview {
+            width: 100%;
+            height: 120px;
+            background: linear-gradient(45deg, rgba(255, 107, 53, 0.1), rgba(247, 147, 30, 0.1));
+            border-radius: 8px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: #888;
+            font-size: 0.9rem;
+        }
+
+        /* FAQ */
+        .faq {
+            max-width: 800px;
+            margin: 0 auto;
+        }
+
+        .faq-item {
+            background: rgba(255, 255, 255, 0.05);
+            backdrop-filter: blur(20px);
+            border: 1px solid rgba(255, 107, 53, 0.2);
+            border-radius: 16px;
+            margin-bottom: 1rem;
+            overflow: hidden;
+        }
+
+        .faq-question {
+            padding: 2rem 1.5rem;
+            cursor: pointer;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            font-weight: 600;
+            font-size: 1.1rem;
+            color: #ffffff;
+            transition: all 0.3s ease;
+        }
+
+        .faq-question:hover {
+            background: rgba(255, 107, 53, 0.1);
+        }
+
+        .faq-toggle {
+            font-size: 1.5rem;
+            color: #ff6b35;
+            transition: transform 0.3s ease;
+            font-weight: 300;
+        }
+
+        .faq-answer {
+            padding: 0 1.5rem;
+            color: #ccc;
+            line-height: 1.6;
+            max-height: 0;
+            overflow: hidden;
+            transition: all 0.3s ease;
+        }
+
+        .faq-item.open .faq-answer {
+            max-height: 300px;
+            padding: 0 1.5rem 2rem;
+        }
+
+        .faq-item.open .faq-toggle {
+            transform: rotate(45deg);
+        }
+
+        /* Mobile menu */
+        .mobile-menu-toggle {
+            display: none;
+            background: none;
+            border: none;
+            color: #ffffff;
+            font-size: 1.5rem;
+            cursor: pointer;
+            padding: 0.5rem;
+        }
+
+        .mobile-menu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            left: 0;
+            right: 0;
+            background: rgba(0, 0, 0, 0.95);
+            backdrop-filter: blur(20px);
+            border-top: 1px solid rgba(255, 107, 53, 0.2);
+            padding: 1rem;
+        }
+
+        .mobile-menu.open {
+            display: block;
+        }
+
+        .mobile-nav-link {
+            display: block;
+            padding: 1rem;
+            color: #ffffff;
+            text-decoration: none;
+            text-align: center;
+            border-bottom: 1px solid rgba(255, 107, 53, 0.1);
+        }
+
+        .mobile-nav-link:last-child {
+            border-bottom: none;
+        }
+
+        .mobile-nav-link:hover {
+            background: rgba(255, 107, 53, 0.1);
+            color: #ff6b35;
+        }
+
+        /* Responsive */
+        @media (max-width: 768px) {
+            .header {
+                padding: 0 1rem;
+            }
+
+            .header-nav {
+                display: none;
+            }
+
+            .mobile-menu-toggle {
+                display: block;
+            }
+
+            .headline h2 {
+                font-size: 2.2rem;
+            }
+
+            .main-card {
+                padding: 2rem 1.5rem;
+                margin: 1rem;
+            }
+
+            .examples-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .tweets-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .examples-showcase {
+                grid-template-columns: 1fr;
+            }
+
+            .faq-question {
+                padding: 1.5rem 1rem;
+                font-size: 1rem;
+            }
+
+            .faq-answer {
+                padding: 0 1rem;
+            }
+
+            .faq-item.open .faq-answer {
+                padding: 0 1rem 1.5rem;
+            }
+        }
+    </style>
+</head>
+
+<body>
+    <!-- Header -->
+    <header class="header">
+        <a href="/" class="header-logo">Flaredream</a>
+        <nav class="header-nav">
+            <a href="/" class="nav-link">Home</a>
+            <a href="/pricing" class="nav-link">Pricing</a>
+            <a href="#hero" class="nav-link nav-cta">Start Dreaming</a>
+        </nav>
+        <button class="mobile-menu-toggle" onclick="toggleMobileMenu()">☰</button>
+        <div class="mobile-menu" id="mobile-menu">
+            <a href="/" class="mobile-nav-link">Home</a>
+            <a href="/pricing" class="mobile-nav-link">Pricing</a>
+            <a href="#hero" class="mobile-nav-link nav-cta">Start Dreaming</a>
+        </div>
+    </header>
+
+    <div class="particles" id="particles"></div>
+
+    <!-- Hero Section -->
+    <section class="hero-section" id="hero">
+        <div class="brand">
+            <h1>Flaredream</h1>
+            <p>The Better Way To Ship</p>
+        </div>
+
+        <div class="main-card">
+            <div class="headline">
+                <h2>
+                    <span class="line">Dream It</span>
+                    <span class="line">Prompt It</span>
+                    <span class="line">Ship It</span>
+                </h2>
+            </div>
+
+            <div class="input-section">
+                <label class="input-label" for="prompt-textarea">Describe your app idea</label>
+                <textarea id="prompt-textarea" class="prompt-textarea"
+                    placeholder="Tell us what you want to build... e.g., 'A simple todo app with drag and drop functionality'"
+                    rows="4"></textarea>
+            </div>
+
+            <div class="examples">
+                <h3>Try these examples:</h3>
+                <div class="examples-grid">
+                    <button class="example-btn" onclick="fillExample('A minimalist todo app with drag and drop')">Todo
+                        App</button>
+                    <button class="example-btn"
+                        onclick="fillExample('A weather dashboard showing current conditions')">Weather App</button>
+                    <button class="example-btn"
+                        onclick="fillExample('A personal portfolio website with dark theme')">Portfolio Site</button>
+                    <button class="example-btn"
+                        onclick="fillExample('A simple expense tracker with categories')">Expense Tracker</button>
+                    <button class="example-btn" onclick="fillExample('A habit tracking app with streaks')">Habit
+                        Tracker</button>
+                </div>
+            </div>
+
+            <button class="submit-btn" onclick="submitPrompt()">
+                Build My App
+            </button>
+        </div>
+    </section>
+
+    <!-- Social Proof Section -->
+    <section class="content-section">
+        <div class="section-title">
+            <h2>What People Say</h2>
+            <p>Developers love building with Flaredream</p>
+        </div>
+
+        <div class="tweets-grid">
+            <div class="tweet">
+                <div class="tweet-header">
+                    <div class="tweet-avatar"></div>
+                    <div>
+                        <div class="tweet-author">Sarah Chen</div>
+                        <div class="tweet-handle">@sarahbuilds</div>
+                    </div>
+                </div>
+                <div class="tweet-content">
+                    "Just shipped my first app with Flaredream in under 10 minutes! The AI understood exactly what I
+                    wanted and generated clean, working code. This is the future of development 🚀"
+                </div>
+            </div>
+
+            <div class="tweet">
+                <div class="tweet-header">
+                    <div class="tweet-avatar"></div>
+                    <div>
+                        <div class="tweet-author">Mike Rodriguez</div>
+                        <div class="tweet-handle">@mikecodez</div>
+                    </div>
+                </div>
+                <div class="tweet-content">
+                    "As a designer who can't code, Flaredream has been a game-changer. I can finally bring my ideas to
+                    life without learning complex frameworks. The output quality is incredible!"
+                </div>
+            </div>
+
+            <div class="tweet">
+                <div class="tweet-header">
+                    <div class="tweet-avatar"></div>
+                    <div>
+                        <div class="tweet-author">Alex Thompson</div>
+                        <div class="tweet-handle">@alexships</div>
+                    </div>
+                </div>
+                <div class="tweet-content">
+                    "Flaredream eliminated weeks of boilerplate work. I described my SaaS idea, and it generated a full
+                    working prototype. Now I can focus on the business logic instead of setup."
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- Examples Showcase -->
+    <section class="content-section">
+        <div class="section-title">
+            <h2>What People Make</h2>
+            <p>Real apps built with Flaredream</p>
+        </div>
+
+        <div class="examples-showcase">
+            <div class="example-card">
+                <div class="example-card-header">
+                    <div class="example-card-title">TaskFlow Pro</div>
+                    <div class="example-card-description">A collaborative task management app with real-time updates and
+                        team analytics</div>
+                </div>
+                <div class="example-card-preview">📋 Task Management</div>
+            </div>
+
+            <div class="example-card">
+                <div class="example-card-header">
+                    <div class="example-card-title">CryptoWatch</div>
+                    <div class="example-card-description">Real-time cryptocurrency tracking dashboard with price alerts
+                        and portfolio management</div>
+                </div>
+                <div class="example-card-preview">📈 Crypto Dashboard</div>
+            </div>
+
+            <div class="example-card">
+                <div class="example-card-header">
+                    <div class="example-card-title">FitTracker</div>
+                    <div class="example-card-description">Personal fitness tracking app with workout logging and
+                        progress visualization</div>
+                </div>
+                <div class="example-card-preview">💪 Fitness Tracker</div>
+            </div>
+
+            <div class="example-card">
+                <div class="example-card-header">
+                    <div class="example-card-title">BookClub</div>
+                    <div class="example-card-description">Social reading platform where users can share reviews and join
+                        book discussions</div>
+                </div>
+                <div class="example-card-preview">📚 Reading Platform</div>
+            </div>
+
+            <div class="example-card">
+                <div class="example-card-header">
+                    <div class="example-card-title">RecipeBox</div>
+                    <div class="example-card-description">Recipe management app with meal planning and grocery list
+                        generation</div>
+                </div>
+                <div class="example-card-preview">🍳 Recipe Manager</div>
+            </div>
+
+            <div class="example-card">
+                <div class="example-card-header">
+                    <div class="example-card-title">StudyBuddy</div>
+                    <div class="example-card-description">Study companion app with flashcards, timers, and progress
+                        tracking</div>
+                </div>
+                <div class="example-card-preview">📖 Study App</div>
+            </div>
+        </div>
+    </section>
+
+    <!-- FAQ Section -->
+    <section class="content-section">
+        <div class="section-title">
+            <h2>Frequently Asked Questions</h2>
+            <p>Everything you need to know about Flaredream</p>
+        </div>
+
+        <div class="faq">
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How does Flaredream work?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    Simply describe your app idea in plain English, and our AI will generate a complete, working
+                    application. We handle the code generation, styling, and deployment automatically.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>What technologies does Flaredream use?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    We use modern web technologies including React, Node.js, and deploy to Cloudflare Workers for
+                    optimal performance and scalability.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Can I customize the generated code?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    Absolutely! You get full access to the source code and can modify it however you like. The generated
+                    code is clean, well-structured, and easy to understand.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>How much does it cost?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    We offer a free tier for basic apps, with premium plans starting at $19/month for advanced features
+                    and unlimited apps.
+                </div>
+            </div>
+
+            <div class="faq-item">
+                <div class="faq-question" onclick="toggleFAQ(this)">
+                    <span>Is my data secure?</span>
+                    <span class="faq-toggle">+</span>
+                </div>
+                <div class="faq-answer">
+                    Yes! We take security seriously. All data is encrypted in transit and at rest, and we never store or
+                    share your application code without permission.
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <script>
+        // Create floating particles
+        function createParticles() {
+            const particlesContainer = document.getElementById('particles');
+            const particleCount = 50;
+
+            for (let i = 0; i < particleCount; i++) {
+                const particle = document.createElement('div');
+                particle.className = 'particle';
+
+                particle.style.left = Math.random() * 100 + '%';
+                particle.style.top = Math.random() * 100 + '%';
+                particle.style.animationDelay = Math.random() * 6 + 's';
+                particle.style.animationDuration = (Math.random() * 4 + 4) + 's';
+
+                particlesContainer.appendChild(particle);
+            }
+        }
+
+        // Fill example text
+        function fillExample(text) {
+            document.getElementById('prompt-textarea').value = text;
+            document.getElementById('prompt-textarea').focus();
+        }
+
+        // Submit prompt
+        function submitPrompt() {
+            const prompt = document.getElementById('prompt-textarea').value.trim();
+
+            if (!prompt) {
+                document.getElementById('prompt-textarea').focus();
+                return;
+            }
+
+            // Here you would typically send the prompt to your backend
+            console.log('Submitting prompt:', prompt);
+            alert('Building your app... (This would normally redirect to the build process)');
+        }
+
+        // Toggle FAQ
+        function toggleFAQ(element) {
+            const faqItem = element.parentElement;
+            const isOpen = faqItem.classList.contains('open');
+
+            // Close all other FAQs
+            document.querySelectorAll('.faq-item').forEach(item => {
+                item.classList.remove('open');
+            });
+
+            // Toggle current FAQ
+            if (!isOpen) {
+                faqItem.classList.add('open');
+            }
+        }
+
+        // Toggle mobile menu
+        function toggleMobileMenu() {
+            const mobileMenu = document.getElementById('mobile-menu');
+            mobileMenu.classList.toggle('open');
+        }
+
+        // Close mobile menu when clicking outside
+        document.addEventListener('click', function (event) {
+            const mobileMenu = document.getElementById('mobile-menu');
+            const toggleButton = document.querySelector('.mobile-menu-toggle');
+
+            if (!mobileMenu.contains(event.target) && !toggleButton.contains(event.target)) {
+                mobileMenu.classList.remove('open');
+            }
+        });
+
+        // Initialize
+        document.addEventListener('DOMContentLoaded', function () {
+            createParticles();
+
+            // Auto-resize textarea
+            const textarea = document.getElementById('prompt-textarea');
+            textarea.addEventListener('input', function () {
+                this.style.height = 'auto';
+                this.style.height = this.scrollHeight + 'px';
+            });
+
+            // Smooth scrolling for anchor links
+            document.querySelectorAll('a[href^="#"]').forEach(anchor => {
+                anchor.addEventListener('click', function (e) {
+                    e.preventDefault();
+                    const target = document.querySelector(this.getAttribute('href'));
+                    if (target) {
+                        target.scrollIntoView({
+                            behavior: 'smooth',
+                            block: 'start'
+                        });
+                    }
+                });
+            });
+        });
+    </script>
+</body>
+
+</html>

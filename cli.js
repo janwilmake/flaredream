@@ -556,12 +556,11 @@ async function deploy(targetPath) {
   const { body, boundary } = await createFormData(files);
 
   // Make deployment request
-  const url = new URL(`${FLAREDREAM_API}/deploy`);
 
   console.log("Uploading to Flaredream...");
 
   try {
-    const response = await fetch(url.toString(), {
+    const response = await fetch(`${FLAREDREAM_API}/deploy`, {
       method: "POST",
       headers: {
         "Content-Type": `multipart/form-data; boundary=${boundary}`,
