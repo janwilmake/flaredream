@@ -471,7 +471,7 @@ async function createFormData(files) {
   for (const file of files) {
     chunks.push(`--${boundary}\r\n`);
     chunks.push(
-      `Content-Disposition: form-data; name="${file.path}"; filename="${file.path}"\r\n`
+      `Content-Disposition: form-data; name="files"; filename="${file.path}"\r\n`
     );
     const contentType = getContentType(file.fullPath);
     if (isBinaryFile(file.fullPath)) {

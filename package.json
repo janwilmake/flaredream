@@ -1,6 +1,6 @@
 {
   "name": "flaredream",
-  "version": "0.0.2",
+  "version": "0.0.4",
   "description": "CLI tool for deploying applications to Cloudflare Workers via Flaredream",
   "main": "cli.js",
   "bin": {
