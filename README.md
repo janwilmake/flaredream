@@ -66,7 +66,7 @@ flaredream deploy [./file-or-folder]
 
 # Flaredream Dropbox
 
-Just upload! https://dropbox.flaredream.com
+Just upload! Check https://flaredream.com/dropbox
 
 # Via LMPIFY
 
