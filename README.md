@@ -27,7 +27,7 @@ Here's a comprehensive comparison:
 | Routes (patterns)                    | ✅              | ❌                |                                   |
 | Multiple environments                | ✅              | ❌                |                                   |
 | Environment variables                | ✅              | ❌                |                                   |
-| **Other Features**                   | ✅              | ❌                |                                   |
+| **Other Features**                   |                 |                   |                                   |
 | Works without wrangler config        | ❌              | ✅                | Uses sensible defaults            |
 
 ## Usage
