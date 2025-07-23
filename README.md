@@ -16,7 +16,7 @@ Here's a comprehensive comparison:
 | Service Workers (Traditional format) | ✅              | ✅                | addEventListener syntax           |
 | ES Modules (Modern format)           | ✅              | ✅                | export default syntax             |
 | Durable Objects                      | ✅              | ✅                |                                   |
-| Building/Bundling (esbuilt)          | ✅              | ❌                | Handles TypeScript, JSX, imports  |
+| Building/Bundling (esbuild)          | ✅              | ❌                | Handles TypeScript, JSX, imports  |
 | Node modules support                 | ✅              | ❌                | Resolves and bundles dependencies |
 | **Configuration**                    |
 | wrangler.toml parsing                | ✅              | ✅                |                                   |
