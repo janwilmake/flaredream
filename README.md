@@ -7,6 +7,9 @@ The main limitations right now are:
 - Building/bundling (jsx, node_modules)
 - Environments and env vars
 - Routes (custom_domain:false)
+- Max ±40MB uploads
+
+[Discuss your needs on X](https://x.com/janwilmake/status/1948048098682437782)
 
 Here's a comprehensive comparison:
 
