@@ -4,12 +4,6 @@
   "definitions": {
     "RawConfig": {
       "type": "object",
-      "patternProperties": {
-        "^x-": {
-          "description": "Extension fields starting with x- are allowed",
-          "$comment": "This allows any extension field that starts with 'x-'"
-        }
-      },
       "additionalProperties": false,
       "properties": {
         "$schema": {
@@ -953,6 +947,12 @@
     },
     "RawEnvironment": {
       "type": "object",
+      "patternProperties": {
+        "^x-": {
+          "description": "Extension fields starting with x- are allowed",
+          "$comment": "This allows any extension field that starts with 'x-'"
+        }
+      },
       "properties": {
         "name": {
           "type": "string",

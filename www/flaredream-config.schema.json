@@ -11,7 +11,7 @@
     "durability": {
       "type": "string",
       "enum": ["none", "central", "ip", "region", "username", "custom"],
-      "description": "BETA - durability - configures whether or how your worker is made durable. defaults to \"custom\" meaning you can get storage by returning a x-durable-worker:name response header"
+      "description": "SOON - durability - configures whether or how your worker is made durable. Defaults to \"custom\" meaning you can get storage by returning a 'x-durable-worker:name' response header"
     },
     "authorization": {
       "type": "object",
@@ -20,7 +20,7 @@
         "type": {
           "type": "string",
           "enum": ["none", "stripeflare", "xmoney", "x", "github"],
-          "description": "BETA - Type of authorization."
+          "description": "SOON - Type of authorization"
         },
         "optional": { "type": "boolean", "default": false }
       }
