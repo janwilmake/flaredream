@@ -38,7 +38,7 @@ Here's a comprehensive comparison:
 There are 2 ways to use this API:
 
 1. Make a GET request to `https://deploy.flaredream.com/{URL}` where `{URL}` is a URL that returns a multipart/form-data stream.
-2. Make a POST request to `https://deploy.flaredream.com/deploy` with multipart/form-data body ([example](https://dropbox.flaredream.com))
+2. Make a POST request to `https://deploy.flaredream.com/deploy` with multipart/form-data body ([example](https://flaredream.com))
 
 Use HTTP Basic Authentication with your Cloudflare credentials: `Authorization: Basic {base64(accountId:apiToken)}`. Your Cloudflare Account-Owned API token needs these permissions: **Workers Scripts Edit** and **Workers Custom Domains Edit**
 
