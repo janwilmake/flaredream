@@ -75,7 +75,7 @@ Just upload! Check https://flaredream.com
 
 Generate static assets and/or a cloudflare worker with wrangler configuration, and click "deploy"
 
-https://flaredream.com
+https://letmeprompt.com
 
 # Future plan
 
