@@ -1,6 +1,8 @@
 {
-  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "$schema": "https://flaredream.com/schema.json",
   "name": "flaredream-landing",
+  "x-flaredream": { "durability": "custom" },
+  "account_id": "",
   "compatibility_date": "2025-06-28",
   "dev": { "port": 3000 },
   "observability": { "logs": { "enabled": true } },

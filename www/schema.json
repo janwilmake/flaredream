@@ -1,0 +1,14 @@
+{
+  "$schema": "http://json-schema.org/draft-07/schema#",
+  "allOf": [
+    { "$ref": "https://flaredream.com/wrangler.schema.json" },
+    {
+      "type": "object",
+      "properties": {
+        "x-flaredream": {
+          "$ref": "https://flaredream.com/flaredream-config.schema.json"
+        }
+      }
+    }
+  ]
+}
