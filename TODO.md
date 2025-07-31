@@ -1,0 +1,2 @@
+- support `CNAME`
+- prevent ratelimit. understand how wrangler doesn't get this with assets upload. may be simple
