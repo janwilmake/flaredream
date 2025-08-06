@@ -1,5 +1,5 @@
 {
-  "$schema": "https://flaredream.com/schema.json",
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
   "name": "flaredream-landing",
   "x-flaredream": { "durability": "custom" },
   "compatibility_date": "2025-06-28",
