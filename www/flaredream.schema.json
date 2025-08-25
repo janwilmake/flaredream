@@ -8,21 +8,21 @@
       "type": "boolean",
       "description": "For any 'flaredream deploy' deployment, Flaredreams custom configurations are enabled with sensible defaults. Set this to 'true' to disale all."
     },
+
     "durability": {
       "type": "string",
-      "enum": ["none", "central", "ip", "region", "username", "custom"],
+      "enum": ["none", "central", "ip", "region", "user", "custom"],
       "description": "SOON - durability - configures whether or how your worker is made durable. Defaults to \"custom\" meaning you can get storage by returning a 'x-durable-worker:name' response header"
     },
-    "authorization": {
+
+    "auth": {
       "type": "object",
       "additionalProperties": false,
       "properties": {
-        "type": {
-          "type": "string",
-          "enum": ["none", "stripeflare", "xmoney", "x", "github"],
-          "description": "SOON - Type of authorization"
-        },
-        "optional": { "type": "boolean", "default": false }
+        "isLoginRequired": { "type": "boolean" },
+        "providerHostname": { "type": "string" },
+        "sameSite": { "type": "string", "enum": ["Lax"] },
+        "scope": { "type": "string" }
       }
     }
   }

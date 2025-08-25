@@ -6,7 +6,7 @@
       "type": "object",
       "properties": {
         "x-flaredream": {
-          "$ref": "https://flaredream.com/flaredream-config.schema.json"
+          "$ref": "https://flaredream.com/flaredream.schema.json"
         }
       }
     }
