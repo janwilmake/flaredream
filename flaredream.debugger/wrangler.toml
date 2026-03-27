@@ -1,0 +1,11 @@
+name = "worker-tailproxy"
+compatibility_date = "2025-05-24"
+main = "main.js"
+route.pattern = "*.evaloncloud.com/*"
+route.zone_name = "evaloncloud.com"
+dev.port = 3000
+
+[[kv_namespaces]]
+binding="KV"
+"id"="04f19590b45946c796cc34d45454d12c"
+

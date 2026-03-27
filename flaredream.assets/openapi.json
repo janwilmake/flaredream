@@ -1,0 +1,343 @@
+{
+  "openapi": "3.0.0",
+  "info": {
+    "title": "Cloudflare Asset Upload API",
+    "version": "2.0.0",
+    "description": "API for uploading static assets to Cloudflare Workers using parallel bucket uploads via Durable Objects"
+  },
+  "servers": [
+    {
+      "url": "https://upload.flaredream.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/{scriptName}/{url}": {
+      "get": {
+        "summary": "Upload assets from a remote FormData",
+        "description": "Fetches FormData from the provided URL and uploads the static assets to Cloudflare Workers using parallel bucket uploads",
+        "parameters": [
+          {
+            "name": "scriptName",
+            "in": "path",
+            "required": true,
+            "description": "Name of the Cloudflare Workers script to upload assets to",
+            "schema": { "type": "string" }
+          },
+          {
+            "name": "url",
+            "in": "path",
+            "required": true,
+            "description": "URL-encoded URL that returns FormData with files",
+            "schema": {
+              "type": "string",
+              "format": "url"
+            },
+            "example": "https%3A%2F%2Fdownload.flaredream.com%2Fsome-id"
+          }
+        ],
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assets uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid URL, no files found, or invalid URL encoding",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "URL parameter required",
+                    "Invalid URL encoding",
+                    "No files found"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid credentials",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Unauthorized"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Basic realm=\"Cloudflare Account\""
+              }
+            }
+          },
+          "405": {
+            "description": "Method not allowed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Method not allowed. Only GET and POST are allowed"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Server error - upload failed or FormData fetch failed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "Server error: Failed to fetch form data",
+                    "Failed to create upload session: Unauthorized"
+                  ]
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{scriptName}": {
+      "post": {
+        "summary": "Upload assets via direct FormData",
+        "description": "Uploads static assets to Cloudflare Workers using multipart/form-data",
+        "parameters": [
+          {
+            "name": "scriptName",
+            "in": "path",
+            "required": true,
+            "description": "Name of the Cloudflare Workers script to upload assets to",
+            "schema": { "type": "string" }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "$ref": "#/components/schemas/AssetFormData"
+              }
+            }
+          }
+        },
+        "security": [
+          {
+            "basicAuth": []
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Assets uploaded successfully",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/SuccessResponse"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Bad request - invalid content type or form data parsing failed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "examples": [
+                    "Content-Type must be multipart/form-data",
+                    "Failed to parse form data: Invalid form data"
+                  ]
+                }
+              }
+            }
+          },
+          "401": {
+            "description": "Unauthorized - missing or invalid credentials",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Invalid credentials"
+                }
+              }
+            },
+            "headers": {
+              "WWW-Authenticate": {
+                "schema": {
+                  "type": "string"
+                },
+                "example": "Basic realm=\"Cloudflare Account\""
+              }
+            }
+          },
+          "500": {
+            "description": "Server error - upload session creation or bucket upload failed",
+            "content": {
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/ErrorResponse"
+                }
+              }
+            }
+          }
+        }
+      },
+      "options": {
+        "summary": "CORS preflight",
+        "description": "Handles CORS preflight requests",
+        "parameters": [
+          {
+            "name": "scriptName",
+            "in": "path",
+            "required": true,
+            "description": "Name of the script (ignored for OPTIONS)",
+            "schema": { "type": "string" }
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "CORS preflight response",
+            "headers": {
+              "Access-Control-Allow-Origin": {
+                "schema": {
+                  "type": "string",
+                  "example": "*"
+                }
+              },
+              "Access-Control-Allow-Methods": {
+                "schema": {
+                  "type": "string",
+                  "example": "GET, POST, OPTIONS"
+                }
+              },
+              "Access-Control-Allow-Headers": {
+                "schema": {
+                  "type": "string",
+                  "example": "Content-Type, Authorization"
+                }
+              }
+            }
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Basic authentication where username is Cloudflare Account ID and password is Cloudflare API Key"
+      }
+    },
+    "schemas": {
+      "SuccessResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": true
+          },
+          "message": {
+            "type": "string",
+            "examples": [
+              "All assets uploaded successfully",
+              "All assets already uploaded"
+            ]
+          },
+          "failedUploads": {
+            "type": "array",
+            "description": "Array of failed upload results (empty on success)",
+            "items": {
+              "$ref": "#/components/schemas/UploadFailure"
+            }
+          },
+          "_headers": {
+            "type": "string",
+            "description": "Content of _headers file if present in assets",
+            "example": "/*.css\n  Cache-Control: max-age=31536000"
+          },
+          "_redirects": {
+            "type": "string",
+            "description": "Content of _redirects file if present in assets",
+            "example": "/old-page /new-page 301"
+          },
+          "jwt": {
+            "type": "string",
+            "nullable": true,
+            "description": "JWT token for final deployment step (null if no uploads needed)",
+            "example": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9..."
+          }
+        },
+        "required": ["success", "message", "failedUploads"]
+      },
+      "ErrorResponse": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "example": false
+          },
+          "error": {
+            "type": "string",
+            "example": "Some uploads failed"
+          },
+          "failures": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/UploadFailure"
+            }
+          }
+        },
+        "required": ["success", "error"]
+      },
+      "UploadFailure": {
+        "type": "object",
+        "properties": {
+          "status": {
+            "type": "integer",
+            "example": 500
+          },
+          "error": {
+            "type": "string",
+            "example": "Upload timeout"
+          }
+        },
+        "required": ["status"]
+      },
+      "AssetFormData": {
+        "type": "object",
+        "description": "FormData containing files to upload as assets. Keys are file paths, values are File objects.",
+        "additionalProperties": {
+          "type": "string",
+          "format": "binary"
+        },
+        "example": {
+          "index.html": "<binary file content>",
+          "styles/main.css": "<binary file content>",
+          "scripts/app.js": "<binary file content>",
+          "wrangler.toml": "<binary file content>",
+          ".assetsignore": "<binary file content>",
+          "_headers": "<binary file content>",
+          "_redirects": "<binary file content>"
+        }
+      }
+    }
+  }
+}

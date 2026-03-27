@@ -1,0 +1,505 @@
+{
+  "openapi": "3.0.3",
+  "info": {
+    "title": "Flaredream Deployment API",
+    "description": "Deploy applications to Cloudflare Workers with custom domains and assets support. Flaredream provides a simple way to deploy your apps to Cloudflare's edge network with automatic SSL, custom domain configuration, and asset management.",
+    "version": "1.0.0",
+    "contact": {
+      "name": "Flaredream",
+      "url": "https://deploy.flaredream.com"
+    },
+    "license": {
+      "name": "MIT"
+    }
+  },
+  "servers": [
+    {
+      "url": "https://deploy.flaredream.com",
+      "description": "Production server"
+    }
+  ],
+  "paths": {
+    "/login": {
+      "get": {
+        "summary": "Initiate OAuth login",
+        "description": "Redirects to SimpleAuth OAuth provider for Cloudflare authentication. If already authenticated, redirects to home.",
+        "tags": ["Authentication"],
+        "responses": {
+          "302": {
+            "description": "Redirect to OAuth provider or home page",
+            "headers": {
+              "Location": {
+                "description": "Redirect URL",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/callback": {
+      "get": {
+        "summary": "OAuth callback handler",
+        "description": "Handles OAuth callback from SimpleAuth, exchanges authorization code for tokens, and sets authentication cookies.",
+        "tags": ["Authentication"],
+        "parameters": [
+          {
+            "name": "code",
+            "in": "query",
+            "required": true,
+            "description": "Authorization code from OAuth provider",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "state",
+            "in": "query",
+            "required": false,
+            "description": "CSRF protection state parameter",
+            "schema": {
+              "type": "string"
+            }
+          }
+        ],
+        "responses": {
+          "302": {
+            "description": "Successful authentication, redirect to home",
+            "headers": {
+              "Set-Cookie": {
+                "description": "Authentication cookies",
+                "schema": {
+                  "type": "string"
+                }
+              },
+              "Location": {
+                "description": "Redirect to home page",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "400": {
+            "description": "Authentication failed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Authorization code not found"
+                }
+              }
+            }
+          }
+        }
+      }
+    },
+    "/{url}": {
+      "get": {
+        "summary": "Deploy from URL (GET method)",
+        "description": "Deploy an application by providing a URL to a files object. The URL is decoded and fetched to retrieve the deployment files. Supports both regular URLs and download.flaredream.com URLs.",
+        "tags": ["Deployment"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "path",
+            "required": true,
+            "description": "URL-encoded URL pointing to a files object (JSON with files structure). Can be with or without protocol.",
+            "schema": {
+              "type": "string"
+            },
+            "example": "https%3A%2F%2Fapi.example.com%2Ffiles"
+          },
+          {
+            "name": "pattern",
+            "in": "query",
+            "required": false,
+            "description": "Custom domain patterns for routing (can be specified multiple times)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            },
+            "example": "api.example.com"
+          }
+        ],
+        "responses": {
+          "200": {
+            "description": "Successful deployment",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "HTML success page with deployment details"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentResult"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect to login (unauthenticated)",
+            "headers": {
+              "Location": {
+                "description": "Login page URL",
+                "schema": {
+                  "type": "string",
+                  "format": "uri"
+                }
+              }
+            }
+          },
+          "404": {
+            "description": "Route not found",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Not Found"
+                }
+              }
+            }
+          },
+          "500": {
+            "description": "Deployment failed",
+            "content": {
+              "text/plain": {
+                "schema": {
+                  "type": "string",
+                  "example": "Deployment failed: Invalid files object format"
+                }
+              }
+            }
+          }
+        }
+      },
+      "post": {
+        "summary": "Deploy with file upload (POST method)",
+        "description": "Deploy an application by uploading files directly using multipart/form-data. Supports both text and binary files.",
+        "tags": ["Deployment"],
+        "security": [
+          {
+            "cookieAuth": []
+          },
+          {
+            "basicAuth": []
+          }
+        ],
+        "parameters": [
+          {
+            "name": "url",
+            "in": "path",
+            "required": true,
+            "description": "Path component (can be any value when using POST)",
+            "schema": {
+              "type": "string"
+            }
+          },
+          {
+            "name": "pattern",
+            "in": "query",
+            "required": false,
+            "description": "Custom domain patterns for routing (can be specified multiple times)",
+            "schema": {
+              "type": "array",
+              "items": {
+                "type": "string"
+              }
+            }
+          }
+        ],
+        "requestBody": {
+          "required": true,
+          "content": {
+            "multipart/form-data": {
+              "schema": {
+                "type": "object",
+                "properties": {
+                  "files": {
+                    "type": "array",
+                    "items": {
+                      "type": "string",
+                      "format": "binary"
+                    },
+                    "description": "Files to deploy. File names determine the deployment path."
+                  },
+                  "pattern": {
+                    "type": "array",
+                    "items": {
+                      "type": "string"
+                    },
+                    "description": "Custom domain patterns (alternative to query params)"
+                  }
+                }
+              }
+            }
+          }
+        },
+        "responses": {
+          "200": {
+            "description": "Successful deployment",
+            "content": {
+              "text/html": {
+                "schema": {
+                  "type": "string",
+                  "description": "HTML success page with deployment details"
+                }
+              },
+              "application/json": {
+                "schema": {
+                  "$ref": "#/components/schemas/DeploymentResult"
+                }
+              }
+            }
+          },
+          "302": {
+            "description": "Redirect to login (unauthenticated)"
+          },
+          "500": {
+            "description": "Deployment failed"
+          }
+        }
+      }
+    }
+  },
+  "components": {
+    "securitySchemes": {
+      "cookieAuth": {
+        "type": "apiKey",
+        "in": "cookie",
+        "name": "cf_account_id",
+        "description": "Cookie-based authentication using Cloudflare account ID and API key cookies (cf_account_id, cf_api_key)"
+      },
+      "basicAuth": {
+        "type": "http",
+        "scheme": "basic",
+        "description": "Basic authentication using Cloudflare Account ID as username and API Token as password"
+      }
+    },
+    "schemas": {
+      "DeploymentResult": {
+        "type": "object",
+        "properties": {
+          "scriptName": {
+            "type": "string",
+            "description": "Name of the deployed worker script",
+            "example": "my-worker"
+          },
+          "workerUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Primary workers.dev URL",
+            "example": "https://my-worker.example.workers.dev"
+          },
+          "dashboardUrl": {
+            "type": "string",
+            "format": "uri",
+            "description": "Cloudflare dashboard URL for the worker",
+            "example": "https://dash.cloudflare.com/?to=/:account/workers/services/view/my-worker/production/settings"
+          },
+          "deployedUrls": {
+            "type": "array",
+            "items": {
+              "type": "string",
+              "format": "uri"
+            },
+            "description": "All URLs where the application is available",
+            "example": [
+              "https://my-worker.example.workers.dev",
+              "https://api.example.com",
+              "https://uuid.evaloncloud.com"
+            ]
+          },
+          "debuggerUrl": {
+            "type": "string",
+            "format": "uri",
+            "nullable": true,
+            "description": "Special debugging proxy URL",
+            "example": "https://abc123.evaloncloud.com"
+          },
+          "assetCount": {
+            "type": "integer",
+            "description": "Number of asset files processed",
+            "example": 5
+          },
+          "customDomainResults": {
+            "type": "array",
+            "items": {
+              "$ref": "#/components/schemas/CustomDomainResult"
+            },
+            "description": "Results of custom domain configuration attempts"
+          },
+          "uploadResult": {
+            "type": "object",
+            "description": "Raw result from Cloudflare Workers API upload"
+          },
+          "errors": {
+            "$ref": "#/components/schemas/DeploymentErrors"
+          }
+        },
+        "required": [
+          "scriptName",
+          "dashboardUrl",
+          "deployedUrls",
+          "assetCount",
+          "customDomainResults",
+          "uploadResult"
+        ]
+      },
+      "CustomDomainResult": {
+        "type": "object",
+        "properties": {
+          "success": {
+            "type": "boolean",
+            "description": "Whether the custom domain was successfully configured"
+          },
+          "domain": {
+            "type": "string",
+            "description": "The domain that was processed",
+            "example": "api.example.com"
+          },
+          "message": {
+            "type": "string",
+            "description": "Human-readable status message",
+            "example": "Custom domain \"api.example.com\" successfully attached to worker"
+          },
+          "error": {
+            "type": "string",
+            "description": "Error code if the operation failed",
+            "enum": [
+              "ZONE_NOT_FOUND",
+              "INSUFFICIENT_PERMISSIONS",
+              "BAD_REQUEST",
+              "API_ERROR",
+              "NETWORK_ERROR"
+            ]
+          }
+        },
+        "required": ["success", "domain", "message"]
+      },
+      "DeploymentErrors": {
+        "type": "object",
+        "properties": {
+          "unsupportedRoutes": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Routes from wrangler.toml that don't have custom_domain:true and were ignored",
+            "example": ["*.example.com/*", "example.com/api/*"]
+          },
+          "domainErrors": {
+            "type": "array",
+            "items": {
+              "type": "string"
+            },
+            "description": "Error messages related to domain configuration",
+            "example": [
+              "Domain \"invalid..domain\" contains invalid characters"
+            ]
+          }
+        },
+        "required": ["unsupportedRoutes", "domainErrors"]
+      },
+      "FilesObject": {
+        "type": "object",
+        "description": "Structure expected when fetching from a URL",
+        "properties": {
+          "files": {
+            "type": "object",
+            "additionalProperties": {
+              "$ref": "#/components/schemas/FileEntry"
+            },
+            "description": "Map of file paths to file entries"
+          }
+        },
+        "required": ["files"]
+      },
+      "FileEntry": {
+        "type": "object",
+        "discriminator": {
+          "propertyName": "type"
+        },
+        "oneOf": [
+          {
+            "$ref": "#/components/schemas/ContentFile"
+          },
+          {
+            "$ref": "#/components/schemas/BinaryFile"
+          }
+        ]
+      },
+      "ContentFile": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["content"]
+          },
+          "content": {
+            "type": "string",
+            "description": "Text content of the file"
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the file content"
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the file in bytes"
+          }
+        },
+        "required": ["type", "content", "hash", "size"]
+      },
+      "BinaryFile": {
+        "type": "object",
+        "properties": {
+          "type": {
+            "type": "string",
+            "enum": ["binary"]
+          },
+          "url": {
+            "type": "string",
+            "format": "uri",
+            "description": "URL where the binary file can be downloaded"
+          },
+          "hash": {
+            "type": "string",
+            "description": "SHA-256 hash of the file content"
+          },
+          "size": {
+            "type": "integer",
+            "description": "Size of the file in bytes"
+          }
+        },
+        "required": ["type", "url", "hash", "size"]
+      }
+    }
+  },
+  "tags": [
+    {
+      "name": "Authentication",
+      "description": "OAuth authentication flow using SimpleAuth"
+    },
+    {
+      "name": "Deployment",
+      "description": "Deploy applications to Cloudflare Workers"
+    }
+  ]
+}

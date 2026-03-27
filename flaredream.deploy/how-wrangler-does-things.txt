@@ -1,0 +1,40 @@
+GET https://api.cloudflare.com/client/v4/accounts/080fd9e0587416d2fa30ed1f527e2323/workers/services/flaredream-upload returns migration_tag
+
+GET https://api.cloudflare.com/client/v4/accounts/080fd9e0587416d2fa30ed1f527e2323/workers/scripts/flaredream-upload/deployments 
+
+
+THIS IS WHERE WRANGLER APPLIES MIGRATION:
+
+PUT https://api.cloudflare.com/client/v4/accounts/080fd9e0587416d2fa30ed1f527e2323/workers/scripts/flaredream-upload?excludeScript=true
+
+```json
+{
+  "main_module": "main.js",
+  "bindings": [
+    {
+      "name": "AssetUploader",
+      "type": "durable_object_namespace",
+      "class_name": "AssetUploader"
+    },
+    {
+      "name": "FLAREDREAM_DOWNLOAD",
+      "type": "service",
+      "service": "flaredream-download"
+    }
+  ],
+  "compatibility_date": "2025-06-29",
+  "compatibility_flags": [],
+  "migrations": {
+    "old_tag": "v1",
+    "new_tag": "v2",
+    "steps": [{ "new_sqlite_classes": ["TEST"] }]
+  },
+  "assets": {
+    "jwt": "eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJodHRwczovL2FwaS53b3JrZXJzLmNsb3VkZmxhcmUuY29tIiwiYXVkIjoiZXdjIiwiZXhwIjoxNzUyNTc3MDUyLCJpYXQiOjE3NTI1NzM0NTIsIm5iZiI6MTc1MjU3MzQ1MiwibWFuaWZlc3RfaWQiOiI2MDNiNTc2OS0xNjU2LTQ0ZTAtYTg2NC03YTVhZGM5N2EyMDQifQ.4Om--lJtYbhrf2JxwXT_QVTislfRfVSZ813MSj6k0rE",
+    "config": {
+      "_redirects": "/llms.txt /openapi.json 302\n/ /openapi.json 302\n/llms-full.txt /openapi.json 302\n",
+      "_headers": "/*.ts\n  Content-Type: text/plain; charset=utf-8\n\n/*\n  Access-Control-Allow-Origin: *"
+    }
+  }
+}
+```

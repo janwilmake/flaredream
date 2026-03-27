@@ -1,0 +1,1 @@
+export const readFile = (path) => `content content`;

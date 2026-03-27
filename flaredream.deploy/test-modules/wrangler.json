@@ -1,0 +1,7 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "test-modules",
+  "main": "entry.js",
+  "compatibility_date": "2025-07-05",
+  "dev": { "port": 3000 }
+}

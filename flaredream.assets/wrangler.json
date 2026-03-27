@@ -1,0 +1,18 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "flaredream-upload",
+  "compatibility_date": "2025-06-29",
+  "main": "main.ts",
+  "dev": { "port": 3000 },
+  "assets": { "directory": "./" },
+  "routes": [{ "custom_domain": true, "pattern": "assets.flaredream.com" }],
+
+  "services": [
+    { "service": "flaredream-download", "binding": "FLAREDREAM_DOWNLOAD" }
+  ],
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["AssetUploader"] },
+    { "tag": "v2", "new_sqlite_classes": ["TEST"] },
+    { "tag": "v3", "deleted_classes": ["AssetUploader", "TEST"] }
+  ]
+}

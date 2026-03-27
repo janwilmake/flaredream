@@ -1,0 +1,35 @@
+{
+  "$schema": "https://contextjson.com/context.schema.json",
+  "attribution": "https://github.com/janwilmake/contextjson",
+  "context": {
+    "overview": {
+      "summary": "Overview of worker-tailproxy and its functionality",
+      "pathPatterns": ["README.md"],
+      "prompt": "What is worker-tailproxy and what problem does it solve? How does it work at a high level?"
+    },
+
+    "implementation": {
+      "summary": "Core implementation of the worker-tailproxy functionality",
+      "pathPatterns": ["main.js"],
+      "prompt": "Explain how worker-tailproxy works in detail. How does it handle the CloudFlare Tail API to collect logs during requests?"
+    },
+
+    "usage": {
+      "summary": "How to use worker-tailproxy in practice",
+      "pathPatterns": ["README.md", "main.js"],
+      "prompt": "How do I use worker-tailproxy with my own Cloudflare Workers? What headers do I need to include in my requests?"
+    },
+
+    "ui": {
+      "summary": "User interface for the worker-tailproxy",
+      "pathPatterns": ["index.html"],
+      "prompt": "How does the UI for worker-tailproxy work? How can I use it to test my Workers and view logs?"
+    },
+    
+    "deploy": {
+      "summary": "Deployment instructions and configuration",
+      "pathPatterns": ["wrangler.toml", "README.md"],
+      "prompt": "How do I deploy worker-tailproxy to my Cloudflare account?"
+    }
+  }
+}

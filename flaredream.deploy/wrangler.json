@@ -1,0 +1,20 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "flaredream-deploy",
+  "compatibility_date": "2025-06-29",
+  "main": "script-upload.ts",
+  "dev": { "port": 3000 },
+  "logpush": true,
+  "assets": { "binding": "ASSETS", "directory": "./" },
+  "kv_namespaces": [
+    {
+      "binding": "KV",
+      "id": "04f19590b45946c796cc34d45454d12c"
+    }
+  ],
+  "services": [
+    { "service": "flaredream-download", "binding": "FLAREDREAM_DOWNLOAD" },
+    { "service": "flaredream-upload", "binding": "FLAREDREAM_ASSETS" }
+  ],
+  "routes": [{ "custom_domain": true, "pattern": "deploy.flaredream.com" }]
+}

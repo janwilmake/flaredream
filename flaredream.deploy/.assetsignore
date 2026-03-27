@@ -1,0 +1,9 @@
+.wrangler
+node_modules
+package-lock.json
+.git
+script-upload.ts
+TODO.md
+wrangler.toml
+SPEC.md
+BACKLOG.md

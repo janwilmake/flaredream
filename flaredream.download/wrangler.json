@@ -1,0 +1,25 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "flaredream-download",
+  "compatibility_date": "2025-06-29",
+  "main": "worker.js",
+  "dev": { "port": 3000 },
+  "assets": { "directory": "./" },
+  "routes": [{ "custom_domain": true, "pattern": "download.flaredream.com" }],
+  "kv_namespaces": [
+    {
+      "binding": "RESULTS",
+      "id": "e698f458a5c0411b8998f335bd24dc11"
+    }
+  ],
+
+  "durable_objects": {
+    "bindings": [
+      {
+        "name": "SQL_STREAM_PROMPT_DO",
+        "class_name": "SQLStreamPromptDO",
+        "script_name": "lmpify3"
+      }
+    ]
+  }
+}
