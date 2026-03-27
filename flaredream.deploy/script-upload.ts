@@ -10,6 +10,7 @@ import {
 import { load } from "js-toml";
 import * as JSON5 from "json5";
 import { parse } from "yaml";
+import { createWorker } from "@cloudflare/worker-bundler";
 
 interface Env {
   FLAREDREAM_DOWNLOAD: Fetcher;
@@ -350,6 +351,155 @@ async function extractFilesFromFormData(request: Request): Promise<{
 }
 
 /**
+ * Detects whether bundling is needed and runs @cloudflare/worker-bundler.
+ *
+ * Bundling is triggered when any of:
+ * - package.json exists with "dependencies"
+ * - The entry point is a .ts, .tsx, or .jsx file
+ *
+ * Replaces the filesObject with bundled output and returns the new main_module.
+ */
+async function bundleFiles(
+  filesObject: FilesObject,
+  wranglerConfig: WranglerConfig | undefined
+): Promise<{
+  filesObject: FilesObject;
+  mainModule: string | undefined;
+  bundled: boolean;
+  warnings: string[];
+}> {
+  const files = filesObject.files;
+
+  // Detect if bundling is needed
+  const packageJsonPath = Object.keys(files).find(
+    (p) => p === "/package.json" || p.endsWith("/package.json")
+  );
+  const hasNpmDependencies = (() => {
+    if (!packageJsonPath || !files[packageJsonPath]?.content) return false;
+    try {
+      const pkg = JSON.parse(files[packageJsonPath].content);
+      return (
+        pkg.dependencies && Object.keys(pkg.dependencies).length > 0
+      );
+    } catch {
+      return false;
+    }
+  })();
+
+  // Check if any source files need transpilation
+  const mainModule = wranglerConfig?.main;
+  const entryExt = mainModule?.split(".").pop();
+  const needsTranspile =
+    entryExt === "ts" || entryExt === "tsx" || entryExt === "jsx";
+
+  // Also check if any file in the project needs transpilation
+  const hasTranspilableFiles = Object.keys(files).some((p) =>
+    /\.(tsx?|jsx)$/.test(p)
+  );
+
+  if (!hasNpmDependencies && !needsTranspile && !hasTranspilableFiles) {
+    return {
+      filesObject,
+      mainModule: undefined,
+      bundled: false,
+      warnings: [],
+    };
+  }
+
+  console.log(
+    `Bundling triggered: npm deps=${hasNpmDependencies}, transpile=${needsTranspile || hasTranspilableFiles}`
+  );
+
+  // Convert FilesObject to Record<string, string> for createWorker
+  const inputFiles: Record<string, string> = {};
+  for (const [path, file] of Object.entries(files)) {
+    if (file.type === "content" && file.content) {
+      // Strip leading slash — createWorker expects relative paths
+      const relativePath = path.startsWith("/") ? path.slice(1) : path;
+      inputFiles[relativePath] = file.content;
+    }
+  }
+
+  // Determine entry point from wrangler config
+  const entryPoint = mainModule
+    ? mainModule.startsWith("/")
+      ? mainModule.slice(1)
+      : mainModule
+    : undefined;
+
+  const result = await createWorker({
+    files: inputFiles,
+    entryPoint,
+    bundle: hasNpmDependencies, // Only full-bundle when there are npm deps
+    sourcemap: false,
+  });
+
+  console.log(
+    `Bundled: mainModule=${result.mainModule}, modules=${Object.keys(result.modules).length}, warnings=${result.warnings?.length || 0}`
+  );
+
+  // Convert bundled output back to FilesObject
+  const bundledFiles: FilesObject["files"] = {};
+
+  for (const [modulePath, moduleContent] of Object.entries(result.modules)) {
+    const normalizedPath = modulePath.startsWith("/")
+      ? modulePath
+      : "/" + modulePath;
+
+    let content: string;
+    if (typeof moduleContent === "string") {
+      content = moduleContent;
+    } else {
+      // Module object — prefer js, then cjs, then text, then json
+      content =
+        moduleContent.js ||
+        moduleContent.cjs ||
+        moduleContent.text ||
+        (moduleContent.json
+          ? `export default ${JSON.stringify(moduleContent.json)}`
+          : "");
+    }
+
+    const encoder = new TextEncoder();
+    const data = encoder.encode(content);
+    const hashBuffer = await crypto.subtle.digest("SHA-256", data);
+    const hashArray = Array.from(new Uint8Array(hashBuffer));
+    const hash = hashArray
+      .map((b) => b.toString(16).padStart(2, "0"))
+      .join("");
+
+    bundledFiles[normalizedPath] = {
+      type: "content",
+      content,
+      hash,
+      size: data.length,
+    };
+  }
+
+  // Preserve non-JS files (HTML, CSS, images, etc.) that weren't part of the bundle
+  // These are needed for the assets pipeline
+  const bundledPaths = new Set(Object.keys(bundledFiles));
+  const configFiles = new Set(["/package.json", "/wrangler.toml", "/wrangler.json", "/wrangler.jsonc"]);
+  for (const [path, file] of Object.entries(files)) {
+    if (!bundledPaths.has(path) && !configFiles.has(path) && file.type === "content") {
+      const ext = path.split(".").pop() || "";
+      const isSourceFile = ["js", "ts", "tsx", "jsx", "mjs", "cjs", "mts", "cts"].includes(ext);
+      // Keep non-source files (assets) that the bundler didn't process
+      if (!isSourceFile) {
+        bundledFiles[path] = file;
+      }
+    }
+  }
+
+  return {
+    filesObject: { files: bundledFiles },
+    mainModule: result.mainModule,
+    bundled: true,
+    warnings: result.warnings || [],
+  };
+}
+
+/**
  * Responsible for building:
  *
  * - adding additional migrations & bindings
@@ -491,7 +641,7 @@ async function handleDeploy(request: Request, ctx: ExecutionContext, env: Env) {
     // Extract files from multipart form data
 
     // TODO: get config here
-    const { filesObject, config } = await extractFilesFromFormData(request);
+    let { filesObject, config } = await extractFilesFromFormData(request);
 
     if (!filesObject.files || typeof filesObject.files !== "object") {
       throw new Error("No files found in request");
@@ -513,6 +663,19 @@ async function handleDeploy(request: Request, ctx: ExecutionContext, env: Env) {
         assets: { directory: "./" },
       };
       console.log("No wrangler config found, using defaults");
+    }
+
+    // Bundle files if needed (npm dependencies, TypeScript, JSX)
+    const bundleResult = await bundleFiles(filesObject, wranglerConfig);
+    if (bundleResult.bundled) {
+      filesObject = bundleResult.filesObject;
+      // Update wrangler config main module to point to bundled entry
+      if (bundleResult.mainModule) {
+        wranglerConfig.main = bundleResult.mainModule;
+      }
+      if (bundleResult.warnings.length > 0) {
+        console.log("Bundle warnings:", bundleResult.warnings);
+      }
     }
 
     const currentMigrationTag = await getCurrentMigrationTag(

@@ -1,0 +1,37 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>portfolio</title>
+  <style>
+    body {
+      margin: 0;
+      min-height: 100vh;
+      display: grid;
+      place-items: center;
+      font-family: Georgia, serif;
+      background: linear-gradient(180deg, #fbf7ef, #f3ede2);
+      color: #17120d;
+      padding: 24px;
+    }
+    main {
+      max-width: 720px;
+      background: rgba(255, 252, 246, 0.92);
+      border: 1px solid rgba(23, 18, 13, 0.1);
+      border-radius: 28px;
+      padding: 32px;
+      box-shadow: 0 24px 60px rgba(63, 39, 16, 0.16);
+    }
+    h1 { margin: 0 0 12px; font-size: clamp(2rem, 6vw, 4rem); line-height: 0.95; }
+    p { color: #66584a; line-height: 1.6; }
+  </style>
+</head>
+<body>
+  <main>
+    <p>New Flaredream project</p>
+    <h1>portfolio</h1>
+    <p>short portfolio</p>
+  </main>
+</body>
+</html>

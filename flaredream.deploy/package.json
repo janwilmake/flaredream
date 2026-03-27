@@ -2,24 +2,30 @@
   "name": "workers-metadata-types",
   "version": "0.0.5",
   "description": "TypeScript types for Cloudflare Worker configurations",
+  "type": "module",
   "main": "index.d.ts",
   "types": "index.d.ts",
   "scripts": {
     "build": "esbuild --bundle src/script-upload.ts --outdir=build --format=esm --target=esnext --external:json5",
     "build2": "esbuild --bundle src/json5.ts --outdir=build --format=esm --target=esnext --splitting --entry-names=[name] --chunk-names=chunks/[name]-[hash]",
-    "build3": "esbuild src/script-upload.ts --outdir=build --format=esm --target=esnext --keep-names --sourcemap"
+    "build3": "esbuild src/script-upload.ts --outdir=build --format=esm --target=esnext --keep-names --sourcemap",
+    "test": "vitest run",
+    "test:watch": "vitest"
   },
   "files": [
     "index.d.ts"
   ],
   "dependencies": {
+    "@cloudflare/worker-bundler": "^0.0.4",
     "js-toml": "^1.0.1",
     "json5": "^2.2.3",
     "wrangler-convert": "^1.0.4",
     "yaml": "^2.8.0"
   },
   "devDependencies": {
+    "@cloudflare/vitest-pool-workers": "^0.13.5",
     "@cloudflare/workers-types": "^4.20250715.0",
-    "esbuild": "0.25.8"
+    "esbuild": "0.25.8",
+    "vitest": "^4.1.2"
   }
 }

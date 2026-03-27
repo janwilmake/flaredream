@@ -5,5 +5,8 @@
   "main": "cli.js",
   "bin": {
     "flaredream": "./cli.js"
+  },
+  "devDependencies": {
+    "@cloudflare/workers-types": "^4.20260317.1"
   }
 }

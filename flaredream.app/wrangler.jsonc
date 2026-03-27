@@ -1,0 +1,34 @@
+{
+  "$schema": "https://unpkg.com/wrangler@latest/config-schema.json",
+  "name": "flaredream-app",
+  "main": "worker.ts",
+  "compatibility_date": "2025-07-14",
+  "durable_objects": {
+    "bindings": [
+      { "name": "GLOBAL_USERS", "class_name": "GlobalUsersDO" },
+      { "name": "USER_PROJECTS", "class_name": "UserProjectsDO" }
+    ]
+  },
+  "r2_buckets": [{ "binding": "PROJECTS", "bucket_name": "projects" }],
+  "migrations": [
+    { "tag": "v1", "new_sqlite_classes": ["GlobalUsersDO", "UserProjectsDO"] }
+  ],
+  "env": {
+    "prod": {
+      "routes": [{ "pattern": "app.flaredream.com", "custom_domain": true }],
+      "durable_objects": {
+        "bindings": [
+          { "name": "GLOBAL_USERS", "class_name": "GlobalUsersDO" },
+          { "name": "USER_PROJECTS", "class_name": "UserProjectsDO" }
+        ]
+      },
+      "r2_buckets": [{ "binding": "PROJECTS", "bucket_name": "projects" }],
+      "migrations": [
+        {
+          "tag": "v1",
+          "new_sqlite_classes": ["GlobalUsersDO", "UserProjectsDO"]
+        }
+      ]
+    }
+  }
+}
